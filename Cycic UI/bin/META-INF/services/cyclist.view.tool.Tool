@@ -6,5 +6,7 @@ cyclist.view.tool.formBuilderTool
 cyclist.view.tool.marketViewTool
 cyclist.view.tool.instituteViewTool
 cyclist.view.tool.simulationInfoTool
+cyclist.view.tool.facilitySortViewTool
+
 
 

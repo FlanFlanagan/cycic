@@ -38,9 +38,5 @@ public class commoditiesViewMediator extends CyclistMediator {
 		}
 	}
 	
-	public void handleNotification(INotification notification){
-		if (notification.getName() == ApplicationConstants.ADD_COMMODITY) {
-			commoditiesView.addNewCommodity();		
-		}
-	}
+	
 }
