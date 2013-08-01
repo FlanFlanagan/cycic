@@ -19,6 +19,8 @@ import cyclist.model.vo.DnD;
  *
  */
 public class Clones {
+//test
+
 	protected static double mousey;
 	protected static double mousex;
 	protected static double x;
