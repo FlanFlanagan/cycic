@@ -3,6 +3,8 @@ package cyclist.view.tool.view;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javafx.event.EventHandler;
@@ -31,7 +33,7 @@ import cyclist.model.vo.DnD;
 import cyclist.model.vo.Facility;
 import javafx.scene.control.*;
 import cyclist.view.component.View;
-//import double_slider.DoubleSlider;
+
 
 public class facilitySortView extends View {
 	static BorderPane pane= new BorderPane();
@@ -47,9 +49,7 @@ public class facilitySortView extends View {
 		setMaxHeight(300);
 		init ();
 	}
-
 	private void init (){
-		
 		//initialize most variables
 		final Text list=new Text ();
 		HBox topBox= new HBox();
@@ -174,14 +174,15 @@ public class facilitySortView extends View {
 				final HBox detailBox=new HBox();
 				detailBox.setSpacing(5);
 				ComboBox<String> detail=new ComboBox<String>();
-				final ArrayList<Object> listed=new ArrayList<>();
+				final ArrayList<ArrayList> listed=new ArrayList<>();
 				final ArrayList<ArrayList> struc=new ArrayList<>();
 				for (int k=0;k<structure.size();k++){
 					ArrayList<ArrayList>detailInfo=(ArrayList<ArrayList>)structure.get(k);
 					detail.getItems().add((String) detailInfo.get(0).get(0));
-					listed.add(detailInfo.get(0).get(0));
+					listed.add(detailInfo.get(1));
 					struc.add(detailInfo.get(0));
 				}
+				detail.setVisibleRowCount(7);
 				detailBox.getChildren().add(detail);
 				addMore.getChildren().add(detailBox);
 		//		System.out.println(dataArrays.FacilityNodes.get(0).facilityData);
@@ -197,9 +198,9 @@ public class facilitySortView extends View {
 							i++;
 						}
 						// if the type of choice is string, add a combobox to detailbox (Hbox)
-						if (struc.get(i).get(2).equals("string")){
+						if (struc.get(i).get(2).equals("String")){
 							ComboBox <String> information=new ComboBox<>();
-							for (int ii=0;ii<listed.get(i).size();ii++){
+							for (int ii=0;ii<((ArrayList<Object>) listed.get(i)).size();ii++){
 								//information.getChildren().add(list.get(i).get
 							}
 							detailBox.getChildren().add(information);
@@ -240,53 +241,17 @@ public class facilitySortView extends View {
 		
 	
 }
-/*	protected int count(String text, String aim)
-	{
-		int index = text.indexOf(aim);
-	    int count = 0;
-	    while (index != -1) {
-	        count++;
-	        text = text.substring(index + 1);
-	        index = text.indexOf(aim);
-	    }
-	    return count;
-		
-	}
-	protected int nthIndexOf(String original, String needle, int n) {
-	    int index = original.indexOf(needle);
-	    if (index == -1) return -1;
-
-	    for (int i = 1; i < n; i++) {
-	        index = original.indexOf(needle, index + 1);
-	        if (index == -1) return -1;
-	    }
-	    return index;
-	}
-
-*/	
+	
+	//need fix the data for this
 	protected void formSort(ArrayList<Object> struc, ArrayList<Object> data,ArrayList<Object> facilitySortArray){
-		//facilitySortArray.clear();
 		for (int i=0;i<struc.size();i++){
-			if (struc.get(i) instanceof ArrayList){
-				if (struc.size()>2){
+			if (struc.size()>2){
+				if (struc.get(i) instanceof ArrayList && struc.get(0) instanceof ArrayList){
+					formSort((ArrayList<Object>)struc.get(i),(ArrayList<Object>)data.get(i),facilitySortArray);
+				}else if (i==0){
 					if (struc.get(2)=="oneOrMore"||struc.get(2)=="zeroOrMore"){
-						ArrayList <Object> newData=new ArrayList<>();
-						ArrayList<Object> newStruc=(ArrayList<Object>)struc.get(1);
-						for (int ii=0;ii<newStruc.size()-1;ii++){
-							ArrayList<Object> element=new ArrayList<>();
-							for (int iii=0;iii<data.size()-1;iii++){
-								ArrayList<Object>tempData=(ArrayList<Object>)data.get(iii);
-								for (int iiii=0;iiii<tempData.size()-1;iiii++){
-									ArrayList<Object>currentData=(ArrayList<Object>)tempData.get(iii);
-									for (int iv=0;iv<currentData.size()-1;iv++){
-										element.add()
-									}
-								}
-								newData.add(element);
-							}
-						formSort(newStruc,newData,facilitySortArray);
-						}
-					}else if (struc.get(2)=="input"||struc.get(2)=="output"){
+					//	formSort((ArrayList<Object>)struc.get(1),data,facilitySortArray);
+					}else if (struc.get(1) instanceof ArrayList){
 						ArrayList <Object> newData=new ArrayList<>();
 						ArrayList<Object> newStruc=(ArrayList<Object>)struc.get(1);
 						for (int ii=0;ii<newStruc.size();ii++){
@@ -298,32 +263,19 @@ public class facilitySortView extends View {
 							newData.add(element);
 						}
 						formSort(newStruc,newData,facilitySortArray);
-					}else{
-						formSort((ArrayList<Object>)struc.get(i),(ArrayList<Object>)data.get(i),facilitySortArray);
-					}
-				}else {
-					formSort((ArrayList<Object>)struc.get(i),(ArrayList<Object>)data.get(i),facilitySortArray);
-				}
-			}else 
-				{
-					if (struc.size()>2){
-						if (!(struc.get(2)=="oneOrMore"||struc.get(2)=="zeroOrMore"||
-								struc.get(2)=="input"||struc.get(2)=="output")){
-							ArrayList<Object> element=new ArrayList<Object>();
-							element.add(struc);
-							element.add(data);
-							if (!(facilitySortArray.contains(element))){
-								facilitySortArray.add(element);
-							}
-						}
+						
+					}else {
+						ArrayList<Object> element=new ArrayList<Object>();
+						element.add(struc);
+						element.add(data);
+						if (!(facilitySortArray.contains(element))){
+							facilitySortArray.add(element);
+						}	
 					}
 				}
-	}
-		
+			} else formSort((ArrayList<Object>)struc.get(i),(ArrayList<Object>)data.get(i),facilitySortArray);
 		}
-			
-	
-	
+	}	
 }
 	
 
