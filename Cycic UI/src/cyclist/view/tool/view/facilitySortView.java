@@ -3,7 +3,6 @@ package cyclist.view.tool.view;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -33,7 +32,6 @@ import cyclist.model.vo.DnD;
 import cyclist.model.vo.Facility;
 import javafx.scene.control.*;
 import cyclist.view.component.View;
-
 
 public class facilitySortView extends View {
 	static BorderPane pane= new BorderPane();
@@ -65,6 +63,7 @@ public class facilitySortView extends View {
 		//final ArrayList<String> structure=new ArrayList<String>();
 		final int index=0;
 		final ArrayList<Object>data=new ArrayList<>();
+		final ArrayList<Object> filt=new ArrayList<>();
 		
 		//variables default info
 		//criteria.setMinWidth(200);
@@ -152,6 +151,7 @@ public class facilitySortView extends View {
 				
 				
 				formSort(dataArrays.FacilityNodes.get(i).facilityStructure,data,structure);
+				System.out.println(data);
 				System.out.println(dataArrays.FacilityNodes.get(i).facilityStructure);
 				System.out.println(structure);
 		
@@ -174,11 +174,16 @@ public class facilitySortView extends View {
 				final HBox detailBox=new HBox();
 				detailBox.setSpacing(5);
 				ComboBox<String> detail=new ComboBox<String>();
+				//data
 				final ArrayList<ArrayList> listed=new ArrayList<>();
+				//stucture for the term
 				final ArrayList<ArrayList> struc=new ArrayList<>();
+				//
+				final ArrayList<Object> order=new ArrayList<>();
 				for (int k=0;k<structure.size();k++){
 					ArrayList<ArrayList>detailInfo=(ArrayList<ArrayList>)structure.get(k);
 					detail.getItems().add((String) detailInfo.get(0).get(0));
+					order.add((String) detailInfo.get(0).get(0));
 					listed.add(detailInfo.get(1));
 					struc.add(detailInfo.get(0));
 				}
@@ -194,35 +199,92 @@ public class facilitySortView extends View {
 							String oldValue, String newValue) {
 						// TODO Auto-generated method stub
 						int i=0;
-						while (!(listed.get(i).equals(newValue))){
+						while (!(order.get(i).equals(newValue))){
 							i++;
 						}
 						// if the type of choice is string, add a combobox to detailbox (Hbox)
 						if (struc.get(i).get(2).equals("String")){
-							ComboBox <String> information=new ComboBox<>();
-							for (int ii=0;ii<((ArrayList<Object>) listed.get(i)).size();ii++){
-								//information.getChildren().add(list.get(i).get
+							if (detailBox.getChildren().size()>=1){
+								detailBox.getChildren().remove(1);
 							}
-							detailBox.getChildren().add(information);
-							
-						}
-						else {
-						/*	DoubleSlider doubleslider=new DoubleSlider();
-							if (struc.get(i).get(0).toString().contains("Month")){
-								doubleslider.setMax(12);
-								doubleslider.setMin(1);
-								doubleslider.setMajorTickUnit(1);
-							}else if (!(struc.get(i).get(4)=="null")){
-								if (struc.get(i).get(4).toString().contains("...")){
-									String[] bound=struc.get(i).get(4).toString().split("...");
-									doubleslider.setMin(Double.parseDouble(bound[0]));
-									doubleslider.setMax(Double.parseDouble(bound[1]));
-									doubleslider.setMajorTickUnit((Double.parseDouble(bound[1])-Double.parseDouble(bound[0]))/10);
+							final ComboBox <String> information=new ComboBox<>();
+							for (int ii=0;ii<((ArrayList<Object>) listed.get(i)).size();ii++){
+								ArrayList<ArrayList>newList=(ArrayList<ArrayList>)listed.get(i);
+								if(!(information.getItems().contains(newList.get(ii).get(0)))){
+									information.getItems().add(newList.get(ii).get(0).toString());
 								}
 								
 							}
-							detailBox.getChildren().add(doubleslider);
-					*/	}
+							detailBox.getChildren().add(information);
+							information.valueProperty().addListener(new ChangeListener <String>(){
+
+								@Override
+								public void changed(ObservableValue<? extends String> arg,
+										String oldProperty, String newProperty) {
+									filt.add(newProperty);
+									
+									
+								}
+								
+							});
+							
+							
+								
+							
+							
+						}
+						else {
+							VBox range=new VBox();
+							HBox lB=new HBox();
+							HBox UB =new HBox();
+							Text lbNum=new Text();
+							Text uBNum=new Text();
+							Button confirm=new Button();
+							confirm.setText("confirm");
+							lbNum.setText("LB");
+							uBNum.setText("UB");
+							lB.getChildren().add(lbNum);
+							final TextField lBValue=new TextField();
+							lBValue.setPromptText("Number Only");
+							final TextField uBValue=new TextField();
+							uBValue.setPromptText("Number Only");
+
+							lB.getChildren().add(lBValue);
+							UB.getChildren().add(uBNum);
+							UB.getChildren().add(uBValue);
+							range.getChildren().add(lB);
+							range.getChildren().add(UB);
+							range.getChildren().add(confirm);
+							confirm.setOnAction(new EventHandler<ActionEvent>() {
+								@Override
+								public void handle(ActionEvent e) {
+									if (!(isInteger(lBValue.getText()))){
+										lBValue.setText("PLEASE!!!NUMBERS!!!");
+									} else if (!(isInteger(uBValue.getText()))){
+										uBValue.setText("PLEASE!!!NUMBERS!!!");
+									} else if (Integer.parseInt(lBValue.getText())>Integer.parseInt(uBValue.getText())){
+										lBValue.setText("PLEASE ENTER CORRECTLY");
+										uBValue.setText("PLEASE ENTER CORRECTLY");
+									}else {
+										int lowvalue;
+										int upvalue;
+										lowvalue=Integer.parseInt(lBValue.getText());
+										upvalue=Integer.parseInt(uBValue.getText());
+										
+										ArrayList <Object>Subfilt=new ArrayList<>();
+										Subfilt.add(lowvalue);
+										Subfilt.add(upvalue);
+										filt.add(Subfilt);
+									}
+								}
+							});
+							if (detailBox.getChildren().size()>=1){
+								detailBox.getChildren().remove(1);
+							}
+							detailBox.getChildren().add(range);
+							//lBValue.getOnAction(new action<>)
+							
+						}
 					}
 					
 				});
@@ -241,6 +303,15 @@ public class facilitySortView extends View {
 		
 	
 }
+	public static boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	        return false; 
+	    }
+	    // only got here if we didn't return false
+	    return true;
+	}
 	
 	//need fix the data for this
 	protected void formSort(ArrayList<Object> struc, ArrayList<Object> data,ArrayList<Object> facilitySortArray){
@@ -250,7 +321,18 @@ public class facilitySortView extends View {
 					formSort((ArrayList<Object>)struc.get(i),(ArrayList<Object>)data.get(i),facilitySortArray);
 				}else if (i==0){
 					if (struc.get(2)=="oneOrMore"||struc.get(2)=="zeroOrMore"){
-					//	formSort((ArrayList<Object>)struc.get(1),data,facilitySortArray);
+						ArrayList <Object> newData=new ArrayList<>();
+						ArrayList<Object> newStruc=(ArrayList<Object>)struc.get(1);
+						for (int ii=0;ii<newStruc.size();ii++){
+							ArrayList<Object> element=new ArrayList<>();
+							for (int iii=0;iii<data.size();iii++){
+								ArrayList<Object> subData=(ArrayList<Object>) data.get(iii);
+								ArrayList<Object>dataCol=(ArrayList<Object>)subData.get(0);
+								element.add(dataCol.get(ii));
+							}
+							newData.add(element);
+						}
+						formSort(newStruc,newData,facilitySortArray);
 					}else if (struc.get(1) instanceof ArrayList){
 						ArrayList <Object> newData=new ArrayList<>();
 						ArrayList<Object> newStruc=(ArrayList<Object>)struc.get(1);
@@ -258,7 +340,8 @@ public class facilitySortView extends View {
 							ArrayList<Object> element=new ArrayList<>();
 							for (int iii=0;iii<data.size();iii++){
 								ArrayList<Object> subData=(ArrayList<Object>) data.get(iii);
-								element.add(1);
+								ArrayList<Object>dataCol=(ArrayList<Object>)subData.get(0);
+								element.add(dataCol.get(ii));
 							}
 							newData.add(element);
 						}
