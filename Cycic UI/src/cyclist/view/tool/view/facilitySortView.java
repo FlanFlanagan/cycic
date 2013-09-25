@@ -5,6 +5,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -19,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -41,7 +43,7 @@ public class facilitySortView extends View {
 	public facilitySortView (){
 		super();
 		setWidth(780);
-		setMaxWidth(780);
+		setMaxWidth(900);
 		setMinWidth(780);
 		setHeight(300);
 		setMaxHeight(300);
@@ -51,12 +53,12 @@ public class facilitySortView extends View {
 		//initialize most variables
 		final Text list=new Text ();
 		HBox topBox= new HBox();
-		HBox searchBox=new HBox();
+		final HBox searchBox=new HBox();
 		//Label text= new Label();
 		final Label number=new Label();
 		final Label type=new Label();
 		final Slider numberShowen=new Slider(0,0,0);
-		VBox criteria = new VBox();
+		final VBox criteria = new VBox();
 		final Button add= new Button();
 		final VBox addMore= new VBox();
 		final ComboBox<String> facilityList=new ComboBox<String>();
@@ -64,7 +66,6 @@ public class facilitySortView extends View {
 		final int index=0;
 		final ArrayList<Object>data=new ArrayList<>();
 		final ArrayList<Object> filt=new ArrayList<>();
-		
 		//variables default info
 		//criteria.setMinWidth(200);
 		criteria.setSpacing(10);
@@ -76,6 +77,8 @@ public class facilitySortView extends View {
 		searchBox.setMaxWidth(600);
 		facilityList.setVisibleRowCount(5);
 		add.setText("add Criteria");
+		final Button start=new Button();
+		start.setText("Start");
 		criteria.setStyle("-fx-border-color: black;");
 		criteria.setPrefHeight(getHeight());
 		searchBox.setMaxHeight(35);
@@ -96,9 +99,6 @@ public class facilitySortView extends View {
 		topBox.setSpacing(50);
 		//criteria.setPrefHeight(pane.getHeight());
 		//right criteria column 
-		criteria.getChildren().add(add);
-		criteria.getChildren().add(addMore);
-
 		
 		//drop down for all parent nodes
 		for(int i =0; i < dataArrays.FacilityNodes.size(); i++){
@@ -112,12 +112,15 @@ public class facilitySortView extends View {
 			public void changed(ObservableValue<? extends String> observable,
 					String oldValue, String newValue) {
 				//find the location of chosen node in the data list
+				criteria.getChildren().clear();
 				structure.clear();
+				
 				data.clear();
 				int i=0;
 				while (!(dataArrays.FacilityNodes.get(i).getId().equals(newValue))){
 					i++;
 				}
+				facilityList.setId(""+i);
 				//update data array
 				for (int ii=0;ii<dataArrays.FacilityNodes.get(i).facilityStructure.size();ii++){
 					ArrayList<Object>element=new ArrayList<>();
@@ -125,7 +128,6 @@ public class facilitySortView extends View {
 						element.add(dataArrays.FacilityNodes.get(i).childrenList.get(iii).facilityData.get(ii));
 					}
 					data.add(element);
-					
 				}
 				
 				//update information in searchbox
@@ -141,6 +143,7 @@ public class facilitySortView extends View {
 		            		number.setVisible(true);
 		                   number.setText("number of nodes shown:" +Integer.toString(new_val.intValue()));
 		            	//	number.setText("number of nodes showen:   " +new_val);
+		                  //System.out.println(filt);
 		            }
 		        });
 			//	add.setId(Integer.toString(i));
@@ -149,17 +152,19 @@ public class facilitySortView extends View {
 					addMore.getChildren().clear();
 				}
 				
-				
 				formSort(dataArrays.FacilityNodes.get(i).facilityStructure,data,structure);
-				System.out.println(data);
-				System.out.println(dataArrays.FacilityNodes.get(i).facilityStructure);
-				System.out.println(structure);
+				//System.out.println(data);
+				//System.out.println(dataArrays.FacilityNodes.get(i).facilityStructure);
+				//System.out.println(structure);
+				criteria.getChildren().add(add);
+				criteria.getChildren().add(addMore);
+				criteria.getChildren().add(start);
+
 		
 			}
 		});
 		
 		//sliderbar listener, change the value on the right ##change the childnode displayed
-		
 		numberShowen.valueProperty().addListener(new ChangeListener<Number>(){
             public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
                     number.setText(Integer.toString(new_val.intValue()));
@@ -168,7 +173,6 @@ public class facilitySortView extends View {
 
 		//add button function. add addmore and filter button
 		add.setOnMouseClicked(new EventHandler <MouseEvent>(){
-
 			@Override
 			public void handle(MouseEvent e) {
 				final HBox detailBox=new HBox();
@@ -190,13 +194,14 @@ public class facilitySortView extends View {
 				detail.setVisibleRowCount(7);
 				detailBox.getChildren().add(detail);
 				addMore.getChildren().add(detailBox);
+
 		//		System.out.println(dataArrays.FacilityNodes.get(0).facilityData);
 		//		System.out.println(data);
 				detail.valueProperty().addListener(new ChangeListener <String>(){
 
 					@Override
 					public void changed(ObservableValue<? extends String> arg0,
-							String oldValue, String newValue) {
+							String oldValue, final String newValue) {
 						// TODO Auto-generated method stub
 						int i=0;
 						while (!(order.get(i).equals(newValue))){
@@ -221,17 +226,12 @@ public class facilitySortView extends View {
 								@Override
 								public void changed(ObservableValue<? extends String> arg,
 										String oldProperty, String newProperty) {
-									filt.add(newProperty);
-									
-									
+									ArrayList <Object>subfilt=new ArrayList<>();
+									subfilt.add(newValue);
+									subfilt.add(newProperty);
+									filt.add(subfilt);	
 								}
-								
 							});
-							
-							
-								
-							
-							
 						}
 						else {
 							VBox range=new VBox();
@@ -270,8 +270,8 @@ public class facilitySortView extends View {
 										int upvalue;
 										lowvalue=Integer.parseInt(lBValue.getText());
 										upvalue=Integer.parseInt(uBValue.getText());
-										
 										ArrayList <Object>Subfilt=new ArrayList<>();
+										Subfilt.add(newValue);
 										Subfilt.add(lowvalue);
 										Subfilt.add(upvalue);
 										filt.add(Subfilt);
@@ -288,11 +288,43 @@ public class facilitySortView extends View {
 					}
 					
 				});
+				start.setOnMouseClicked(new EventHandler <MouseEvent>(){
+
+					@Override
+					public void handle(MouseEvent event) {
+						System.out.println(filt);
+						ArrayList<Object> displaylist=new ArrayList<>();
+						int order= Integer.parseInt(facilityList.getId());
+						ArrayList<ArrayList> struc=new ArrayList<>();
+						for (int ii=0;ii<dataArrays.FacilityNodes.get(order).childrenList.size();ii++)
+						{
+							for (int iv=0;iv<dataArrays.FacilityNodes.get(order).facilityStructure.size();iv++){
+								if (!(((ArrayList) dataArrays.FacilityNodes.get(order).facilityStructure.get(iv)).get(1) 
+										instanceof ArrayList)){
+									struc.add((ArrayList) dataArrays.FacilityNodes.get(order).facilityStructure.get(iv));
+								} else {
+									ArrayList<ArrayList> subtruc =(ArrayList) dataArrays.FacilityNodes.get(order).facilityStructure.get(iv);
+									ArrayList<ArrayList> realsub=(ArrayList)subtruc.get(1);
+									struc.add(realsub);
+								}
+							}
+							boolean truth=true;
+				//add
+							
+							if (truth==true){
+								displaylist.add(dataArrays.FacilityNodes.get(order).childrenList.get(ii));
+								display.getChildren().add(dataArrays.FacilityNodes.get(order).childrenList.get(ii));
+							}
+							
+						}
+						System.out.println(displaylist.toString());
+						System.out.println(struc);
+						System.out.println(dataArrays.FacilityNodes.get(order).childrenList.get(0).facilityData);
+					}
+				});
 				
 				detailBox.getChildren().add(list);
 			}
-			
-			
 		});
 		
 
