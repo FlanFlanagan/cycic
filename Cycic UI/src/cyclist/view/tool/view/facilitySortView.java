@@ -310,7 +310,99 @@ public class facilitySortView extends View {
 							}
 							boolean truth=true;
 				//add
+							for (int i=0;i<filt.size();i++){
+								ArrayList <String>filter=(ArrayList)filt.get(i);
+								//System.out.println(filter.get(0));
+								int lev=-1;
+								int ord=-1;
+								int ordernum=-1;
+								boolean found=false;
+							    for (int l=0;l<struc.size();l++){
+							    	if (!(found)){
+								    	if ((struc.get(l).get(0)instanceof ArrayList)){
+								    		lev++;
+								    		ord=-1;
+								    		for (int ll=0;ll<struc.get(l).size();ll++){
+								    			ord++;
+								    			if (((ArrayList) struc.get(l).get(ll)).get(0).equals(filter.get(0))){
+								    				found=true;
+								    				ordernum=ord;
+								    			}
+								    		}
+								    		
+								    	}else{
+								    		lev++;
+								    		ord=-1;
+								    		if (struc.get(l).get(0).equals(filter.get(0))){
+							    				found=true;
+							    			}
+								    	}
+							    	} else {
+							    		System.out.println(lev+"+"+ordernum);
+							    	}
+							    }
+							    if (filter.size()<2){
+							    	if (ordernum==-1){
+							    		if (dataArrays.FacilityNodes.get(ii).facilityData.get(lev).equals("")){
+							    			truth=false;
+							    		}else if (!(dataArrays.FacilityNodes.get(ii).facilityData.get(lev).equals(filter.get(1)))){
+							    			truth=false;
+								    	}/*else {
+									    	if (!(Integer.parseInt((String) dataArrays.FacilityNodes.get(ii).facilityData.get(lev))<Integer.parseInt(filter.get(2))&&
+									    			Integer.parseInt((String) dataArrays.FacilityNodes.get(ii).facilityData.get(lev))>Integer.parseInt(filter.get(1)))){
+									    		truth=false;
+									    	}
+								    	}
+								    	*/
+							    } else{
+							    	if (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals("")){
+						    			truth=false;
+						    		}else if (!(((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals(filter.get(1)))){
+						    			truth=false;
+							    	}/*else {
+								    	if (!(Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))<Integer.parseInt(filter.get(2))&&
+								    			Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))>Integer.parseInt(filter.get(1)))){
+								    		truth=false;
+								    	}
+							    	}*/
+							    }
+							   } else{
+								  /* if(ordernum==-1 || lev==-1){
+									   truth=false;
+								   } else 
+								   
+								   */
+								   if (ordernum==-1){
+									   if (( dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).equals("")){
+											truth=false;
+										}/*else if (!(( dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).equals(filter.get(1)))){
+								    		truth=false;
+								    	}*/else {
+									    	if (!(Integer.parseInt((String) (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(0)))
+									    			<Integer.parseInt(filter.get(2))&&
+									    			Integer.parseInt((String) ( ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(0)))
+									    			>Integer.parseInt(filter.get(1)))){
+									    		truth=false;
+									    	}
+								    }
+								   }
+								   else if (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals("")){
+										truth=false;
+									}/*else if (!(((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals(filter.get(1)))){
+							    		truth=false;
+							    		
+							    	}*/else {
+								    	if (!(Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))
+								    			<Integer.parseInt(filter.get(2))&&
+								    			Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))
+								    			>Integer.parseInt(filter.get(1)))){
+								    		truth=false;
+								    	}
+							    }
+							    }
+							    	
 							
+							}							
 							if (truth==true){
 								displaylist.add(dataArrays.FacilityNodes.get(order).childrenList.get(ii));
 								display.getChildren().add(dataArrays.FacilityNodes.get(order).childrenList.get(ii));
