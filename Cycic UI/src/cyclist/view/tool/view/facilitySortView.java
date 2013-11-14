@@ -54,7 +54,6 @@ public class facilitySortView extends View {
 		final Text list=new Text ();
 		HBox topBox= new HBox();
 		final HBox searchBox=new HBox();
-		//Label text= new Label();
 		final Label number=new Label();
 		final Label type=new Label();
 		final Slider numberShowen=new Slider(0,0,0);
@@ -63,7 +62,6 @@ public class facilitySortView extends View {
 		final VBox addMore= new VBox();
 		final ComboBox<String> facilityList=new ComboBox<String>();
 		//final ArrayList<String> structure=new ArrayList<String>();
-		final int index=0;
 		final ArrayList<Object>data=new ArrayList<>();
 		final ArrayList<Object> filt=new ArrayList<>();
 		//variables default info
@@ -72,8 +70,6 @@ public class facilitySortView extends View {
 		//pane.setPrefSize(1000,900);
 		display.setMinSize(250,150);
 		searchBox.setSpacing(10);
-		 number.setText("number of nodes shown:  " );
-		 number.setVisible(false);
 		searchBox.setMaxWidth(600);
 		facilityList.setVisibleRowCount(5);
 		add.setText("add Criteria");
@@ -114,7 +110,7 @@ public class facilitySortView extends View {
 				//find the location of chosen node in the data list
 				criteria.getChildren().clear();
 				structure.clear();
-				
+				display.getChildren().clear();
 				data.clear();
 				int i=0;
 				while (!(dataArrays.FacilityNodes.get(i).getId().equals(newValue))){
@@ -129,19 +125,32 @@ public class facilitySortView extends View {
 					}
 					data.add(element);
 				}
-				
+				for (int iii=0;iii<dataArrays.FacilityNodes.get(i).childrenList.size();iii++){
+					display.getChildren().add(dataArrays.FacilityNodes.get(i).childrenList.get(iii));
+				}
+				number.setVisible(true);
+				 number.setText("number of nodes shown:" +Integer.toString(dataArrays.FacilityNodes.get(i).childrenList.size()));
+
 				//update information in searchbox
 				type.setText("Type: "+dataArrays.FacilityNodes.get(i).facilityType);
+				
 				numberShowen.setMax(dataArrays.FacilityNodes.get(i).childrenList.size());
 				numberShowen.setShowTickMarks(true);
 				numberShowen.setShowTickLabels(true);
 				numberShowen.setMinorTickCount(0);
+				numberShowen.setValue(numberShowen.getMax());
 				numberShowen.setMajorTickUnit(1);
 				numberShowen.setSnapToTicks(true);
 				numberShowen.valueProperty().addListener(new ChangeListener<Number>(){
 		            public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
-		            		number.setVisible(true);
+		            	
 		                   number.setText("number of nodes shown:" +Integer.toString(new_val.intValue()));
+		                   int value=new_val.intValue();
+		                   int order= Integer.parseInt(facilityList.getId());
+		                   display.getChildren().clear();
+		                   for (int iii=0;iii<value;iii++){
+		   					display.getChildren().add(dataArrays.FacilityNodes.get(order).childrenList.get(iii));
+		   				}
 		            	//	number.setText("number of nodes showen:   " +new_val);
 		                  //System.out.println(filt);
 		            }
@@ -165,11 +174,7 @@ public class facilitySortView extends View {
 		});
 		
 		//sliderbar listener, change the value on the right ##change the childnode displayed
-		numberShowen.valueProperty().addListener(new ChangeListener<Number>(){
-            public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
-                    number.setText(Integer.toString(new_val.intValue()));
-            }
-        });
+		
 
 		//add button function. add addmore and filter button
 		add.setOnMouseClicked(new EventHandler <MouseEvent>(){
@@ -190,6 +195,7 @@ public class facilitySortView extends View {
 					order.add((String) detailInfo.get(0).get(0));
 					listed.add(detailInfo.get(1));
 					struc.add(detailInfo.get(0));
+					System.out.println(detailInfo);
 				}
 				detail.setVisibleRowCount(7);
 				detailBox.getChildren().add(detail);
@@ -292,12 +298,14 @@ public class facilitySortView extends View {
 
 					@Override
 					public void handle(MouseEvent event) {
+						display.getChildren().clear();
 						System.out.println(filt);
 						ArrayList<Object> displaylist=new ArrayList<>();
 						int order= Integer.parseInt(facilityList.getId());
 						ArrayList<ArrayList> struc=new ArrayList<>();
 						for (int ii=0;ii<dataArrays.FacilityNodes.get(order).childrenList.size();ii++)
 						{
+							facilityCircle dataarray=dataArrays.FacilityNodes.get(ii);
 							for (int iv=0;iv<dataArrays.FacilityNodes.get(order).facilityStructure.size();iv++){
 								if (!(((ArrayList) dataArrays.FacilityNodes.get(order).facilityStructure.get(iv)).get(1) 
 										instanceof ArrayList)){
@@ -308,11 +316,11 @@ public class facilitySortView extends View {
 									struc.add(realsub);
 								}
 							}
-							boolean truth=true;
-				//add
+							boolean truth=false;
+				//logic error occur
 							for (int i=0;i<filt.size();i++){
 								ArrayList <String>filter=(ArrayList)filt.get(i);
-								//System.out.println(filter.get(0));
+								System.out.println(filter);
 								int lev=-1;
 								int ord=-1;
 								int ordernum=-1;
@@ -341,63 +349,54 @@ public class facilitySortView extends View {
 							    		System.out.println(lev+"+"+ordernum);
 							    	}
 							    }
-							    if (filter.size()<2){
-							    	if (ordernum==-1){
-							    		if (dataArrays.FacilityNodes.get(ii).facilityData.get(lev).equals("")){
-							    			truth=false;
-							    		}else if (!(dataArrays.FacilityNodes.get(ii).facilityData.get(lev).equals(filter.get(1)))){
-							    			truth=false;
-								    	}/*else {
-									    	if (!(Integer.parseInt((String) dataArrays.FacilityNodes.get(ii).facilityData.get(lev))<Integer.parseInt(filter.get(2))&&
-									    			Integer.parseInt((String) dataArrays.FacilityNodes.get(ii).facilityData.get(lev))>Integer.parseInt(filter.get(1)))){
-									    		truth=false;
-									    	}
+							    if (filter.size()<=2){
+							    	if (ordernum==-1){ 	
+							    		System.out.println(lev);
+							    		System.out.println(ii);
+							    		if ((dataarray.facilityData.get(lev).equals(filter.get(1)))){
+							    			truth=true;
 								    	}
-								    	*/
-							    } else{
-							    	if (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals("")){
-						    			truth=false;
-						    		}else if (!(((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals(filter.get(1)))){
-						    			truth=false;
-							    	}/*else {
-								    	if (!(Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))<Integer.parseInt(filter.get(2))&&
-								    			Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))>Integer.parseInt(filter.get(1)))){
-								    		truth=false;
+							    	} else if(ordernum>-1){
+								    	if ((((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals(filter.get(1))))
+								    	{
+							    			truth=true;
 								    	}
-							    	}*/
 							    }
-							   } else{
-								  /* if(ordernum==-1 || lev==-1){
-									   truth=false;
-								   } else 
-								   
-								   */
+							   } else if (filter.size()>2){
+								  
 								   if (ordernum==-1){
-									   if (( dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).equals("")){
-											truth=false;
-										}/*else if (!(( dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).equals(filter.get(1)))){
-								    		truth=false;
-								    	}*/else {
-									    	if (!(Integer.parseInt((String) (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(0)))
-									    			<Integer.parseInt(filter.get(2))&&
-									    			Integer.parseInt((String) ( ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(0)))
-									    			>Integer.parseInt(filter.get(1)))){
-									    		truth=false;
+									  // System.out.println((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev));
+									   if (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).equals(null)){
+										   truth=false;
+									
+									   }
+									   else if (!((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).toString().equals("[]")) {
+										   System.out.println( (dataArrays.FacilityNodes.get(ii).facilityData.get(lev)));
+										   //System.out.println(filter.get(2));
+										  if (((Integer.parseInt((dataArrays.FacilityNodes.get(ii).facilityData.get(lev).toString())))
+									   
+									    			<Integer.parseInt(filter.get(2)))&&
+									    			Integer.parseInt(( dataArrays.FacilityNodes.get(ii).facilityData.get(lev).toString()))
+									    			>Integer.parseInt(filter.get(1))){
+									    		truth=true;
 									    	}
-								    }
+									   }
 								   }
-								   else if (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals("")){
-										truth=false;
-									}/*else if (!(((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals(filter.get(1)))){
-							    		truth=false;
-							    		
-							    	}*/else {
-								    	if (!(Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))
+								    
+								   
+								   else {
+									   if (((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum).equals("")){
+											truth=false;
+										}
+									   else{
+										   if ((Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))
+									   
 								    			<Integer.parseInt(filter.get(2))&&
 								    			Integer.parseInt((String) ((ArrayList) dataArrays.FacilityNodes.get(ii).facilityData.get(lev)).get(ordernum))
 								    			>Integer.parseInt(filter.get(1)))){
-								    		truth=false;
+								    		truth=true;
 								    	}
+									   }
 							    }
 							    }
 							    	
